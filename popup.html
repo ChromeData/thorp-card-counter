@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thorp Card Counter - Beat the Dealer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #667eea;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .status {
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      padding: 8px;
+      background: white;
+      border-radius: 6px;
+    }
+
+    .status-label {
+      color: #666;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .status-value {
+      font-weight: bold;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .status-value.positive {
+      color: #4CAF50;
+    }
+
+    .status-value.negative {
+      color: #F44336;
+    }
+
+    .status-value.neutral {
+      color: #666;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    .highlight-box .status-item {
+      background: rgba(255,255,255,0.2);
+      margin: 6px 0;
+    }
+
+    .highlight-box .status-label {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .highlight-box .status-value {
+      color: white;
+      font-size: 18px;
+    }
+
+    .strategy-section {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+
+    .strategy-title {
+      font-weight: bold;
+      color: #e65100;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .strategy-hint {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .strategy-hint:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #ff9800;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .detected {
+      background: #e8f5e9;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .not-detected {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+    }
+
+    .info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+      line-height: 1.6;
+    }
+
+    .info strong {
+      color: #333;
+    }
+
+    .system-info {
+      background: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: #1565C0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎴 Thorp Card Counter</h1>
+      <div class="subtitle">Based on "Beat the Dealer" by Edward O. Thorp</div>
+    </div>
+    
+    <div id="status" class="status">
+      <div class="status-item">
+        <span class="status-label">Game Detected:</span>
+        <span id="game-detected" class="status-value">Scanning...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Cards Seen:</span>
+        <span id="cards-seen" class="status-value">0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Running Count:</span>
+        <span id="running-count" class="status-value">0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">True Count:</span>
+        <span id="true-count" class="status-value">0.0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">High-Low Index:</span>
+        <span id="high-low-index" class="status-value">0.0%</span>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <div class="status-item">
+        <span class="status-label">Player Advantage:</span>
+        <span id="player-advantage" class="status-value">0.0%</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Recommended Bet:</span>
+        <span id="bet-recommendation" class="status-value">1 unit</span>
+      </div>
+    </div>
+
+    <div class="strategy-section">
+      <div class="strategy-title">Strategy Adjustments</div>
+      <div id="strategy-hints">
+        <div class="strategy-hint">Use Basic Strategy</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="input-group">
+        <label for="deck-count">Number of Decks (1-8):</label>
+        <input type="number" id="deck-count" min="1" max="8" value="1" placeholder="Decks">
+      </div>
+      
+      <button class="btn-primary" id="reset-btn">Reset Counter</button>
+      <button class="btn-secondary" id="refresh-btn">Refresh Status</button>
+    </div>
+
+    <div class="system-info">
+      <strong>Hi-Lo Point Count System:</strong><br>
+      • Cards 2-6: +1 (low cards)<br>
+      • Cards 7-9: 0 (neutral)<br>
+      • Cards 10, J, Q, K, A: -1 (high cards)<br>
+      • True Count = Running Count ÷ Decks Remaining
+    </div>
+
+    <div class="info">
+      <strong>From "Beat the Dealer":</strong><br>
+      This extension implements the Complete Point-Count System (Hi-Lo) as described in Edward O. Thorp's classic book. The system tracks the running count and calculates the true count to determine optimal betting and strategy adjustments.
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

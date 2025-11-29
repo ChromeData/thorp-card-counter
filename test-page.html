@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Counter Test Page - Blackjack Simulator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .game-area {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .dealer-area, .player-area {
+      margin: 30px 0;
+    }
+
+    .area-label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .cards-container {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      min-height: 120px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .card {
+      width: 80px;
+      height: 112px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      color: #333;
+      font-weight: bold;
+      position: relative;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card.red {
+      color: #d32f2f;
+    }
+
+    .card.black {
+      color: #212121;
+    }
+
+    .card-value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .card-suit {
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .card-corner {
+      font-size: 14px;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-hit {
+      background: #2196F3;
+    }
+
+    .btn-hit:hover {
+      background: #1976D2;
+    }
+
+    .btn-stand {
+      background: #FF9800;
+    }
+
+    .btn-stand:hover {
+      background: #F57C00;
+    }
+
+    .btn-reset {
+      background: #f44336;
+    }
+
+    .btn-reset:hover {
+      background: #d32f2f;
+    }
+
+    .instructions {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    .instructions h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .instructions ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .instructions li {
+      margin: 10px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .instructions li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .card-counter-info {
+      background: rgba(102, 126, 234, 0.3);
+      border: 2px solid #667eea;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .card-counter-info strong {
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎴 Blackjack Card Counter Test Page</h1>
+
+    <div class="card-counter-info">
+      <strong>Extension Status:</strong> The Thorp Card Counter extension should detect this page and start counting cards automatically. Look for the overlay in the top-right corner!
+    </div>
+
+    <div class="game-area">
+      <div class="dealer-area">
+        <div class="area-label">Dealer's Cards</div>
+        <div class="cards-container" id="dealer-cards">
+          <!-- Cards will be added here -->
+        </div>
+      </div>
+
+      <div class="player-area">
+        <div class="area-label">Your Cards</div>
+        <div class="cards-container" id="player-cards">
+          <!-- Cards will be added here -->
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn-hit" onclick="dealCard('player')">Hit (Deal Card)</button>
+        <button class="btn-stand" onclick="dealCard('dealer')">Dealer Draw</button>
+        <button class="btn-reset" onclick="resetGame()">Reset Game</button>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h2>How to Test the Extension:</h2>
+      <ul>
+        <li>Click "Hit" to deal cards to your hand - the extension will count them</li>
+        <li>Click "Dealer Draw" to add cards to the dealer's hand</li>
+        <li>Watch the extension overlay update with running count, true count, and bet recommendations</li>
+        <li>Click the extension icon in Chrome toolbar to see the full popup</li>
+        <li>Try different card combinations to see how the count changes</li>
+        <li>Use the popup to adjust deck count and reset the counter</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const cardNames = {
+      'A': 'Ace', '2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five',
+      '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine', '10': 'Ten',
+      'J': 'Jack', 'Q': 'Queen', 'K': 'King'
+    };
+
+    let dealerCards = [];
+    let playerCards = [];
+
+    function getRandomCard() {
+      const value = values[Math.floor(Math.random() * values.length)];
+      const suit = suits[Math.floor(Math.random() * suits.length)];
+      const isRed = suit === '♥' || suit === '♦';
+      
+      return {
+        value: value,
+        suit: suit,
+        name: cardNames[value],
+        isRed: isRed,
+        displayName: `${cardNames[value]} of ${suit === '♠' ? 'Spades' : suit === '♥' ? 'Hearts' : suit === '♦' ? 'Diamonds' : 'Clubs'}`
+      };
+    }
+
+    function createCardElement(card, container) {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = `card ${card.isRed ? 'red' : 'black'}`;
+      cardDiv.setAttribute('data-card', card.value);
+      cardDiv.setAttribute('data-card-name', card.name.toLowerCase());
+      cardDiv.innerHTML = `
+        <div class="card-corner">${card.value}</div>
+        <div class="card-suit">${card.suit}</div>
+        <div class="card-corner" style="transform: rotate(180deg);">${card.value}</div>
+      `;
+      
+      // Add text content for extension to detect
+      cardDiv.textContent = `${card.name} ${card.suit}`;
+      cardDiv.setAttribute('title', card.displayName);
+      
+      container.appendChild(cardDiv);
+      
+      // Trigger a small delay to simulate card appearing
+      setTimeout(() => {
+        cardDiv.style.opacity = '0';
+        cardDiv.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+          cardDiv.style.transition = 'all 0.3s';
+          cardDiv.style.opacity = '1';
+          cardDiv.style.transform = 'scale(1)';
+        }, 50);
+      }, 10);
+    }
+
+    function dealCard(target) {
+      const card = getRandomCard();
+      const container = document.getElementById(target === 'player' ? 'player-cards' : 'dealer-cards');
+      
+      if (target === 'player') {
+        playerCards.push(card);
+      } else {
+        dealerCards.push(card);
+      }
+      
+      createCardElement(card, container);
+      
+      // Also add text nodes that the extension can detect
+      const textNode = document.createTextNode(`${card.name} ${card.value}`);
+      container.appendChild(textNode);
+      
+      // Remove text node after a moment (keeps DOM clean but extension saw it)
+      setTimeout(() => {
+        if (textNode.parentNode) {
+          textNode.parentNode.removeChild(textNode);
+        }
+      }, 100);
+    }
+
+    function resetGame() {
+      dealerCards = [];
+      playerCards = [];
+      document.getElementById('dealer-cards').innerHTML = '';
+      document.getElementById('player-cards').innerHTML = '';
+    }
+
+    // Deal initial cards
+    setTimeout(() => {
+      dealCard('player');
+      dealCard('player');
+      dealCard('dealer');
+    }, 500);
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,32 @@
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Extracted EPUB files (if any)
+Beat_the_Dealer_extracted/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Node modules (if any)
+node_modules/
+
